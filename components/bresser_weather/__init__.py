@@ -108,7 +108,7 @@ async def to_code(config):
     cg.add_platformio_option(
         "lib_deps",
         [
-            "matthias-bs/BresserWeatherSensorReceiver@0.37.0",
+            "https://github.com/multiman2000/BresserWeatherSensorReceiver.git#main",
             "jgromes/RadioLib@7.4.0",
             "bblanchon/ArduinoJson@7.4.2",
         ],
