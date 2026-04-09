@@ -15,7 +15,7 @@ from esphome.const import (
     UNIT_PERCENT,
 )
 
-DEPENDENCIES = ["esp32"]
+DEPENDENCIES = ["esp32", "spi"]
 AUTO_LOAD = ["sensor", "binary_sensor", "text_sensor"]
 
 CONF_WIND_GUST = "wind_gust"
@@ -99,6 +99,10 @@ CONFIG_SCHEMA = cv.Schema(
 
 
 async def to_code(config):
+    if CORE.is_esp32 and CORE.using_arduino:
+        cg.add_library("SPI", None)
+        cg.add_library("Preferences", None)
+    
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
 
