@@ -115,6 +115,10 @@ async def to_code(config):
     )
     cg.add_platformio_option("lib_ldf_mode", "deep+")
     cg.add_build_flag("-DUSE_SX1276")
+    cg.add_build_flag("-DPIN_RECEIVER_CS=33")
+    cg.add_build_flag("-DPIN_RECEIVER_IRQ=21")
+    cg.add_build_flag("-DPIN_RECEIVER_GPIO=-1")
+    cg.add_build_flag("-DPIN_RECEIVER_RST=25")
 
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
