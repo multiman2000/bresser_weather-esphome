@@ -114,7 +114,7 @@ async def to_code(config):
         ],
     )
     cg.add_platformio_option("lib_ldf_mode", "deep+")
-    cg.add_build_flag("-DUSE_CC1101")
+    cg.add_build_flag("-DUSE_SX1276")
 
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
