@@ -1,19 +1,20 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import sensor, binary_sensor, text_sensor
+from esphome.components import binary_sensor, sensor, text_sensor
 from esphome.const import (
+    CONF_HUMIDITY,
     CONF_ID,
     CONF_TEMPERATURE,
-    CONF_HUMIDITY,
-    DEVICE_CLASS_TEMPERATURE,
-    DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_BATTERY,
+    DEVICE_CLASS_HUMIDITY,
     DEVICE_CLASS_SIGNAL_STRENGTH,
+    DEVICE_CLASS_TEMPERATURE,
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_TOTAL_INCREASING,
     UNIT_CELSIUS,
     UNIT_PERCENT,
 )
+from esphome.core import CORE
 
 DEPENDENCIES = ["esp32", "spi"]
 AUTO_LOAD = ["sensor", "binary_sensor", "text_sensor"]
@@ -29,7 +30,6 @@ CONF_BATTERY_OK = "battery_ok"
 CONF_SENSOR_ID = "sensor_id"
 CONF_FILTER_SENSOR_ID = "filter_sensor_id"
 
-# Custom units not in const
 UNIT_METER_PER_SECOND = "m/s"
 UNIT_MILLIMETER = "mm"
 UNIT_DEGREES = "°"
@@ -37,7 +37,9 @@ UNIT_KILOLUX = "klx"
 UNIT_DBM = "dBm"
 
 bresser_weather_ns = cg.esphome_ns.namespace("bresser_weather")
-BresserWeatherComponent = bresser_weather_ns.class_("BresserWeatherComponent", cg.Component)
+BresserWeatherComponent = bresser_weather_ns.class_(
+    "BresserWeatherComponent", cg.Component
+)
 
 CONFIG_SCHEMA = cv.Schema(
     {
@@ -102,7 +104,18 @@ async def to_code(config):
     if CORE.is_esp32 and CORE.using_arduino:
         cg.add_library("SPI", None)
         cg.add_library("Preferences", None)
-    
+
+    cg.add_platformio_option(
+        "lib_deps",
+        [
+            "matthias-bs/BresserWeatherSensorReceiver@0.37.0",
+            "jgromes/RadioLib@7.4.0",
+            "bblanchon/ArduinoJson@7.4.2",
+        ],
+    )
+    cg.add_platformio_option("lib_ldf_mode", "deep+")
+    cg.add_build_flag("-DUSE_CC1101")
+
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
 
@@ -152,13 +165,3 @@ async def to_code(config):
 
     if CONF_FILTER_SENSOR_ID in config:
         cg.add(var.set_filter_sensor_id(config[CONF_FILTER_SENSOR_ID]))
-
-    # Add library dependencies
-    cg.add_platformio_option("lib_deps", ["matthias-bs/BresserWeatherSensorReceiver@0.37.0"])
-    cg.add_platformio_option("lib_deps", ["jgromes/RadioLib@7.4.0"])
-    cg.add_platformio_option("lib_deps", ["vshymanskyy/Preferences@2.2.2"])
-    cg.add_platformio_option("lib_deps", ["bblanchon/ArduinoJson@7.4.2"])
-    
-    # Add build flag to ensure library dependencies are found
-    cg.add_build_flag("-DUSE_CC1101")
-    cg.add_platformio_option("lib_ldf_mode", "deep+")
