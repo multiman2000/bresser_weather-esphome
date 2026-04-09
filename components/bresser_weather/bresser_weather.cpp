@@ -1,5 +1,6 @@
 #include "bresser_weather.h"
 #include "esphome/core/log.h"
+#include <SPI.h>
 
 namespace esphome
 {
@@ -11,6 +12,10 @@ namespace esphome
         void BresserWeatherComponent::setup()
         {
             ESP_LOGI(TAG, "Setting up Bresser Weather Sensor Receiver");
+
+            SPI.begin(23, 22, 19, 33);
+            SPI.setFrequency(1000000);
+
             this->ws_.begin();
             ESP_LOGI(TAG, "Receiver initialized successfully");
         }
@@ -25,10 +30,8 @@ namespace esphome
 
             if (decode_status == DECODE_OK)
             {
-                // Use first sensor slot
                 const int i = 0;
 
-                // Check if filter is enabled and if sensor ID matches
                 if (this->filter_enabled_ && this->ws_.sensor[i].sensor_id != this->filter_sensor_id_)
                 {
                     ESP_LOGD(TAG, "Ignoring sensor ID %08X (filter: %08X)",
@@ -37,14 +40,11 @@ namespace esphome
                     return;
                 }
 
-                // Check if this is a weather sensor
                 if ((this->ws_.sensor[i].s_type == SENSOR_TYPE_WEATHER0) ||
                     (this->ws_.sensor[i].s_type == SENSOR_TYPE_WEATHER1) ||
                     (this->ws_.sensor[i].s_type == SENSOR_TYPE_WEATHER3) ||
                     (this->ws_.sensor[i].s_type == SENSOR_TYPE_WEATHER8))
                 {
-
-                    // Publish sensor ID
                     if (this->sensor_id_sensor_ != nullptr)
                     {
                         char id_str[16];
@@ -52,33 +52,26 @@ namespace esphome
                         this->sensor_id_sensor_->publish_state(id_str);
                     }
 
-                    // Publish RSSI
                     if (this->rssi_sensor_ != nullptr)
                     {
                         this->rssi_sensor_->publish_state(this->ws_.sensor[i].rssi);
                     }
 
-                    // Publish battery status
-                    // Note: In Home Assistant, device_class BATTERY uses inverted logic:
-                    // ON = Battery Low, OFF = Battery OK
                     if (this->battery_sensor_ != nullptr)
                     {
                         this->battery_sensor_->publish_state(!this->ws_.sensor[i].battery_ok);
                     }
 
-                    // Publish temperature
                     if (this->ws_.sensor[i].w.temp_ok && this->temperature_sensor_ != nullptr)
                     {
                         this->temperature_sensor_->publish_state(this->ws_.sensor[i].w.temp_c);
                     }
 
-                    // Publish humidity
                     if (this->ws_.sensor[i].w.humidity_ok && this->humidity_sensor_ != nullptr)
                     {
                         this->humidity_sensor_->publish_state(this->ws_.sensor[i].w.humidity);
                     }
 
-                    // Publish wind data
                     if (this->ws_.sensor[i].w.wind_ok)
                     {
                         if (this->wind_gust_sensor_ != nullptr)
@@ -95,19 +88,16 @@ namespace esphome
                         }
                     }
 
-                    // Publish rain
                     if (this->ws_.sensor[i].w.rain_ok && this->rain_sensor_ != nullptr)
                     {
                         this->rain_sensor_->publish_state(this->ws_.sensor[i].w.rain_mm);
                     }
 
-                    // Publish UV index (7-in-1 specific)
                     if (this->ws_.sensor[i].w.uv_ok && this->uv_sensor_ != nullptr)
                     {
                         this->uv_sensor_->publish_state(this->ws_.sensor[i].w.uv);
                     }
 
-                    // Publish light (7-in-1 specific)
                     if (this->ws_.sensor[i].w.light_ok && this->light_sensor_ != nullptr)
                     {
                         this->light_sensor_->publish_state(this->ws_.sensor[i].w.light_klx);
@@ -130,5 +120,5 @@ namespace esphome
             delay(100);
         }
 
-    } // namespace bresser_weather
-} // namespace esphome
+    }
+}
