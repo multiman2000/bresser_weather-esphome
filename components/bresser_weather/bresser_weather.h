@@ -8,6 +8,10 @@
 #include "WeatherSensor.h"
 
 #define USE_SX1276
+#define PIN_RECEIVER_RST  25
+#define PIN_RECEIVER_CS   33
+#define PIN_RECEIVER_IRQ  21
+#define PIN_RECEIVER_GPIO -1
 
 namespace esphome
 {
