@@ -67,7 +67,7 @@ The underlying library supports **various configurations**. Untested combination
 
 ```yaml
 external_components:
-  - source: github://exetico/bresser-esphome@main
+  - source: github://multiman2000/bresser-esphome@main
     components: [bresser_weather]
 ```
 
@@ -103,7 +103,7 @@ spi:
 
 # External component
 external_components:
-  - source: github://exetico/bresser_weather-esphome@main
+  - source: github://multiman2000/bresser_weather-esphome@main
     components: [bresser_weather]
 
 wifi:
