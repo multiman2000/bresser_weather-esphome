@@ -12,7 +12,7 @@
 #define PIN_RECEIVER_IRQ 4           // D2 (GD0)
 #define PIN_RECEIVER_GPIO 5          // D1 (GD2)
 #define PIN_RECEIVER_RST RADIOLIB_NC // Not connected
-#define USE_CC1101
+#define USE_SX1276
 
 namespace esphome
 {
